@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "321436161187",
+    "firebase_url": "https://ingenieriatrading-1f72a.firebaseio.com",
+    "project_id": "ingenieriatrading-1f72a",
+    "storage_bucket": "ingenieriatrading-1f72a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:321436161187:android:9d1ac1eb4ef25e98",
+        "android_client_info": {
+          "package_name": "ingenieriatrading.myapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "321436161187-placq5uovfm1ongtoj5o9i52j8b2fkls.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ingenieriatrading.myapp",
+            "certificate_hash": "fdf83290ff4655cf53b28704e45c39ac6712d3ad"
+          }
+        },
+        {
+          "client_id": "321436161187-ksekb4j7okpdt8j476qf228cf7lvosoc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP9cnLjgArYfZDTUW8eqs8HdhxcZ23Kuw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "321436161187-ksekb4j7okpdt8j476qf228cf7lvosoc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
