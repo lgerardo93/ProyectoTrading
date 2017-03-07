@@ -16,6 +16,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         infoTextView = (TextView) findViewById(R.id.infotv);
+
+
+        /*if (getIntent().getExtras() != null) {
+            Log.d(LOGTAG, "DATOS RECIBIDOS (INTENT)");
+            Log.d(LOGTAG, "Usuario: " + getIntent().getExtras().getString("usuario"));
+            Log.d(LOGTAG, "Estado: " + getIntent().getExtras().getString("estado"));
+        }*/
         if(getIntent().getExtras() != null){
             for(String key : getIntent().getExtras().keySet()){
                 String value = getIntent().getExtras().getString(key);

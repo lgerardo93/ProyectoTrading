@@ -42,6 +42,12 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService{
             mostrarNotificacion(title, message);
         }
 
+        if(remoteMessage.getData() != null) {
+            Log.d("FIREBASE", "DATOS RECIBIDOS");
+            Log.d("FIREBASE", "Usuario: " + remoteMessage.getData().get("usuario"));
+            Log.d("FIREBASE", "Estado: " + remoteMessage.getData().get("estado"));
+        }
+
         //super.onMessageReceived(remoteMessage);
         /*String from =  remoteMessage.getFrom();
         String title = remoteMessage.getNotification().getTitle();
@@ -59,6 +65,11 @@ public class MiFirebaseMessagingService extends FirebaseMessagingService{
         }*/
     }
 
+    /**
+     * Metodo encargado de mostrar la notificacion en nustro dispositivo
+     * @param title titulo de la notificacion
+     * @param body cuerpo de la notificacion
+     */
     private void mostrarNotificacion(String title, String body)
     {
         Intent intent = new Intent(this, MainActivity.class);
