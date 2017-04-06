@@ -28,12 +28,22 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
+/* nombre de bd u977427995_ users
+usuario u977427995_yair */
 /**
  * A login screen that offers login via email/password.
  */
@@ -61,11 +71,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private VolleyRP volley;
+    private RequestQueue mRequest;
+
+    private static String IP = "http://ingenieriatraiding.verxiel.com/ArchivosPHP/Login_GETID.php?id=";
 
     @Override
      protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        volley = VolleyRP.getInstance(this);
+        mRequest = volley.getRequestQueue();
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -184,15 +201,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
+            SolicitudJSON(IP + email);
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
+
+
     }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
-        return email.contains("@");
+        return true;//email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
@@ -200,6 +220,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return password.length() > 4;
     }
 
+    /**
+     * Metdo que solicitara json para revisar la base de datos de usuarios
+     */
+    public void SolicitudJSON(String URL){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                VerificaLogin(response);
+            }
+        },new Response.ErrorListener(){
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(LoginActivity.this,"Ocurrio un error por favor contacte al administrador",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        VolleyRP.addToQueue(jsonObjectRequest,mRequest,this,volley);
+    }
+
+    public void VerificaLogin(JSONObject datos){
+        Toast.makeText(this,"Los datos son: " + datos.toString(),Toast.LENGTH_SHORT);
+    }
     /**
      * Shows the progress UI and hides the login form.
      */
