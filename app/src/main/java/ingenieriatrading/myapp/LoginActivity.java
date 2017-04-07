@@ -35,6 +35,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -42,10 +43,8 @@ import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-/* nombre de bd u977427995_ users
-usuario u977427995_yair */
 /**
- * A login screen that offers login via email/password.
+ * Activity para el logeo de usuarios
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
@@ -61,19 +60,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
-    // UI references.
+    // Controles de interfaz
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    //Clase para hacer conexion a la base de datos
     private VolleyRP volley;
     private RequestQueue mRequest;
-
+    //Direccion ip del servidor
     private static String IP = "http://ingenieriatraiding.verxiel.com/ArchivosPHP/Login_GETID.php?id=";
 
     @Override
@@ -83,7 +84,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         volley = VolleyRP.getInstance(this);
         mRequest = volley.getRequestQueue();
-        // Set up the login form.
+        // Configuracion de la inferfaz
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -170,7 +171,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String user = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -184,11 +185,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(user)) {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!isEmailValid(user)) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -199,12 +200,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            SolicitudJSON(IP + email);
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            SolicitudJSON(IP + user, user, password);
         }
 
 
@@ -221,17 +217,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     /**
-     * Metdo que solicitara json para revisar la base de datos de usuarios
+     * Método que solicitara los datos al servidor y se encargara de validar que coincidadn
+     * @param URL direccion donde se encuentra el servidor de php
+     * @param user usuario dado por el usuario
+     * @param pass contraseña dada por el usuario
      */
-    public void SolicitudJSON(String URL){
+    public void SolicitudJSON(String URL, final String user, final String pass){
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(URL, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                VerificaLogin(response);
+                //Si no tiene poblema al hacer la peticion de la base de datos ejecutara el método
+                VerificaLogin(response, user, pass);
             }
         },new Response.ErrorListener(){
             @Override
             public void onErrorResponse(VolleyError error) {
+                //Si tiene poblema al hacer la peticion de la base de datos mandara este error
                 Toast.makeText(LoginActivity.this,"Ocurrio un error por favor contacte al administrador",Toast.LENGTH_SHORT).show();
             }
         });
@@ -239,8 +240,34 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         VolleyRP.addToQueue(jsonObjectRequest,mRequest,this,volley);
     }
 
-    public void VerificaLogin(JSONObject datos){
-        Toast.makeText(this,"Los datos son: " + datos.toString(),Toast.LENGTH_SHORT);
+    /**
+     * Método encargado de comparar los datos de la base de datos y los brindados por el usuario
+     * @param datos resultado de la base de datos
+     * @param user usuario dado por el usuario
+     * @param pass contraseña dada por el usuario
+     */
+    public void VerificaLogin(JSONObject datos,String user, String pass){
+        try {
+            String estado = datos.getString("resultado");
+            if(estado.equals("CC")){
+                JSONObject jsonDatos = new JSONObject(datos.getString("datos"));
+                String usuario = jsonDatos.getString("user");
+                String password = jsonDatos.getString("password");
+                if(password.equals(pass)){
+                    showProgress(true);
+                    mAuthTask = new UserLoginTask(user, password);
+                    mAuthTask.execute((Void) null);
+                }else{
+                    Toast.makeText(this,"Password incorrecto" ,Toast.LENGTH_SHORT).show();
+                }
+
+            }
+            else{
+                Toast.makeText(this,estado ,Toast.LENGTH_SHORT).show();
+            }
+        } catch (JSONException e) {
+
+        }
     }
     /**
      * Shows the progress UI and hides the login form.
