@@ -14,4 +14,12 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="email_sign_in">Email</string>
+    <string name="password_sign_in">Password</string>
+    <string name="password_dos_sign_in">Confirme su password porfavor</string>
+    <string name="nombre_sign_in">Nombre</string>
+    <string name="apellidos_sign_in">Apellidos</string>
+    <string name="celular_sign_in">Celular</string>
+    <string name="usuario_sign_in">Usuario</string>
+    <string name="registrar_btn_sign_in">Registrar</string>
 </resources>

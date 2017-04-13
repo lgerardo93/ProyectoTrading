@@ -3,6 +3,7 @@ package ingenieriatrading.myapp;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -82,6 +83,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Button mRegistrarBtn;
+
         volley = VolleyRP.getInstance(this);
         mRequest = volley.getRequestQueue();
         // Configuracion de la inferfaz
@@ -105,6 +108,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public void onClick(View view) {
                 attemptLogin();
+            }
+        });
+        mRegistrarBtn = (Button) findViewById(R.id.email_registrar_button);
+        mRegistrarBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intentRegistrar = new Intent(view.getContext(),RegistroActivity.class);
+                startActivity(intentRegistrar);
             }
         });
 
