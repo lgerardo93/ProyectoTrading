@@ -35,6 +35,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +52,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * Activity para el logeo de usuarios
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, GoogleApiClient.OnConnectionFailedListener {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -78,12 +83,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     //Direccion ip del servidor
     private static String IP = "http://ingenieriatraiding.verxiel.com/ArchivosPHP/Login_GETID.php?id=";
 
+    private GoogleApiClient googleApiClient;
+    private SignInButton signInButtonGoogle;
+
+    public static final int SIGN_IN_CODE = 777;
+
     @Override
      protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
         Button mRegistrarBtn;
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API,gso)
+                .build();
+        signInButtonGoogle = (SignInButton) findViewById(R.id.sign_in_google);
+        signInButtonGoogle.setSize(SignInButton.SIZE_WIDE);
+        signInButtonGoogle.setColorScheme(SignInButton.COLOR_DARK);
 
         volley = VolleyRP.getInstance(this);
         mRequest = volley.getRequestQueue();
@@ -116,6 +137,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onClick(View view) {
                 Intent intentRegistrar = new Intent(view.getContext(),RegistroActivity.class);
                 startActivity(intentRegistrar);
+            }
+        });
+
+        signInButtonGoogle.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
+                startActivityForResult(intent,SIGN_IN_CODE);
             }
         });
 
@@ -357,6 +386,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(this,"Falla al conectarse",Toast.LENGTH_SHORT);
     }
 
 
