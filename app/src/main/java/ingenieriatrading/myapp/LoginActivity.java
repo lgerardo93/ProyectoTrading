@@ -37,9 +37,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,6 +91,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     public static final int SIGN_IN_CODE = 777;
 
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener firebaseAuthListener;
+
     @Override
      protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +102,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Button mRegistrarBtn;
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -105,6 +112,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         signInButtonGoogle = (SignInButton) findViewById(R.id.sign_in_google);
         signInButtonGoogle.setSize(SignInButton.SIZE_WIDE);
         signInButtonGoogle.setColorScheme(SignInButton.COLOR_DARK);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    goMainScreen();
+                }
+            }
+        };
 
         volley = VolleyRP.getInstance(this);
         mRequest = volley.getRequestQueue();
@@ -150,6 +168,46 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        firebaseAuth.addAuthStateListener(firebaseAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (firebaseAuthListener != null) {
+            firebaseAuth.removeAuthStateListener(firebaseAuthListener);
+        }
+    }
+
+    private void goMainScreen() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP| Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == SIGN_IN_CODE){
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
+        }
+    }
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        if(result.isSuccess()){
+            goMainScreen();
+        }else{
+            Toast.makeText(this,"No pudo iniciar sesion",Toast.LENGTH_SHORT);
+        }
     }
 
     private void populateAutoComplete() {
